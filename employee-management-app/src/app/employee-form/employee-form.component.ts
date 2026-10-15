@@ -36,9 +36,16 @@ export class EmployeeFormComponent implements OnInit {
     this.route.paramMap.subscribe((result) => {
       const id = result.get('id');
 
-      if(id) 
-        this.isEditing = true;
-    
+      this.isEditing = id !== null;
+
+      if (!this.isEditing) {
+        this.employee = {
+          id: 0, firstName: '', lastName: '', email: '', phone: '', position: ''
+        };
+        this.errorMessage = '';
+        return;
+      }
+
       this.employeeService.getEmployeeById(Number(id)).subscribe({
         next: (result) => this.employee = result,
         error: (err) => console.error("Error loading employee", err),
