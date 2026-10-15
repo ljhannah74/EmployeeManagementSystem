@@ -52,7 +52,7 @@ The request flow is Angular component → EmployeeService → EmployeeController
 - Node.js and npm compatible with Angular 19.2; consult the [Angular version compatibility table](https://angular.dev/reference/versions).
 - Chrome or Chromium if running the Karma browser tests.
 
-The commands below reflect the repository configuration. A fresh-checkout build has not yet been verified, and the import-path issue listed below must be resolved first.
+The frontend production build and backend Release build have been verified. See the validation notes below for the remaining browser-testing limitation.
 
 ### 1. Clone the repository
 
@@ -138,12 +138,19 @@ npm run build
 npm test -- --watch=false --browsers=ChromeHeadless
 ```
 
-The existing frontend tests are a starting point, not evidence of comprehensive coverage. There is no separate backend test project in the current repository tree. These commands have not been executed as part of this documentation update.
+The frontend includes five form regression tests for create/edit initialization, resetting the form on route changes, and selecting the correct submit operation. Other tests are still initial scaffolds, and there is no separate backend test project.
+
+Validation performed for this update:
+
+- Backend Release build: passed, with five existing nullable-property warnings in the employee model.
+- Frontend production build: passed, with initial bundle-budget and Bootstrap selector warnings.
+- TypeScript test compilation: passed.
+- Live API smoke check: create, retrieve, update, list, delete, and deletion verification passed using fictional data.
+- Karma execution: attempted, but Chrome could not launch because this execution environment denied a required socket operation. The tests have not been confirmed passing.
+- Screenshots and end-to-end browser verification remain pending; no simulated screenshots are included.
 
 ## Known limitations
 
-- **Frontend import paths:** `src/app/employee.service.ts` imports `../environments/environment` and `../models/employee`, but the checked-in folders are `src/environments` and `src/models`. From the service file, those imports should point to `../../environments/environment` and `../../models/employee`. This is a source-inspection finding; the compiler has not been run for this update.
-- **Create-form initialization:** the form requests an employee even when no route ID is present. Loading an existing record should be restricted to edit mode.
 - **Temporary storage:** the EF Core InMemory provider does not provide durable storage or production relational-database behavior.
 - **Validation and errors:** field validation, missing-record handling, and consistent API error responses need improvement. Some failures are logged only to the browser console.
 - **Access control:** authentication and authorization are not implemented. Use fictional data in local development.
@@ -151,7 +158,7 @@ The existing frontend tests are a starting point, not evidence of comprehensive 
 
 ## Next improvements
 
-1. Resolve frontend import paths and verify the complete create/edit/delete workflow.
+1. Run the browser tests and verify the complete create/edit/delete workflow in the UI.
 2. Add field validation and consistent error messages.
 3. Test service HTTP requests, API responses, and form behavior.
 4. Add persistent storage and document database setup.
