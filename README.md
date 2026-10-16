@@ -16,6 +16,24 @@ A full-stack employee directory built with Angular and ASP.NET Core. The project
 
 Employee records contain an ID, first name, last name, email, phone, and position.
 
+## Use Interface
+
+### Employee directory
+
+<img width="1365" height="718" alt="image" src="https://github.com/user-attachments/assets/75b7215c-9d30-49ca-b02c-40b3c1d93be6" />
+
+### Employee Edit Form
+
+<img width="1365" height="713" alt="image" src="https://github.com/user-attachments/assets/dc81e905-db7d-42c4-a540-956954106460" />
+
+### Invalid Email
+
+<img width="1365" height="716" alt="image" src="https://github.com/user-attachments/assets/245ffde0-9a88-437b-9aba-326657799ccd" />
+
+## Validation Messages
+
+<img width="1365" height="714" alt="image" src="https://github.com/user-attachments/assets/21dca1a8-03e6-4f66-a1ff-6038f84607d1" />
+
 ## Technology
 
 | Area | Implementation |
