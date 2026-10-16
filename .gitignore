@@ -54,3 +54,7 @@ CodeCoverage/
 *.VisualState.xml
 TestResult.xml
 nunit-*.xml
+
+# Local SQLite database and journal files
+EmployeeManagement/*.db
+EmployeeManagement/*.db-*

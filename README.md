@@ -21,11 +21,11 @@ Employee records contain an ID, first name, last name, email, phone, and positio
 | --- | --- |
 | Frontend | Angular 19.2, TypeScript 5.7, RxJS, template-driven forms |
 | Backend | C#, ASP.NET Core targeting .NET 9 |
-| Data access | Entity Framework Core 9.0.4 with the InMemory provider |
+| Data access | Entity Framework Core 9.0.4 with the SQLite provider |
 | API documentation | Swagger UI through Swashbuckle |
 | Frontend testing | Jasmine and Karma; initial scaffold tests |
 
-**Storage is temporary.** There is no SQL Server or SQLite setup for this version. All employee data is lost when the API process stops.
+Employee records are stored in a local SQLite database and survive API restarts. No separate database server is required.
 
 ## Structure
 
@@ -70,7 +70,17 @@ dotnet restore EmployeeManagementSystem.sln
 dotnet run --project EmployeeManagement/EmployeeManagement.csproj --launch-profile http
 ```
 
-Keep this terminal running.
+On first launch, the API applies the checked-in EF Core migrations and creates `EmployeeManagement/employees.db`. Relative database paths resolve against the backend content root, so the normal launch commands use the same file. Keep this terminal running.
+
+The connection string is configured under `ConnectionStrings:EmployeeDb` in `EmployeeManagement/appsettings.json`. Override it with the `ConnectionStrings__EmployeeDb` environment variable if needed. The default database and its journal files are excluded from Git; also exclude any custom database path you choose.
+
+Schema changes should use a new EF Core migration (using `dotnet-ef` 9.0.4), for example:
+
+```bash
+dotnet ef migrations add DescribeSchemaChange --project EmployeeManagement/EmployeeManagement.csproj
+```
+
+Startup applies pending migrations automatically for this local portfolio app. Back up the database before schema changes; a production deployment should apply migrations as a controlled deployment step.
 
 - API: `http://localhost:5235/api/employee`
 - Swagger UI: `http://localhost:5235/`
@@ -97,7 +107,7 @@ The frontend API base URL is configured in `employee-management-app/src/environm
 2. Confirm that the employee appears in the directory.
 3. Edit the record and verify the changes.
 4. Delete the record and confirm it disappears.
-5. Restart the API to observe that in-memory records are cleared.
+5. Create another fictional record, restart the API, and confirm that it remains in the directory.
 
 ## API endpoints
 
@@ -140,7 +150,7 @@ npm test -- --watch=false --browsers=ChromeHeadless
 
 The frontend includes five form regression tests for create/edit initialization, resetting the form on route changes, and selecting the correct submit operation. Other tests are still initial scaffolds, and there is no separate backend test project.
 
-Validation performed for this update:
+Validation from the earlier form update (frontend unchanged by the SQLite change):
 
 - Backend Release build: passed, with five existing nullable-property warnings in the employee model.
 - Frontend production build: passed, with initial bundle-budget and Bootstrap selector warnings.
@@ -149,9 +159,16 @@ Validation performed for this update:
 - Karma execution: attempted, but Chrome could not launch because this execution environment denied a required socket operation. The tests have not been confirmed passing.
 - Screenshots and end-to-end browser verification remain pending; no simulated screenshots are included.
 
+SQLite validation:
+- Backend Release build passed with the same five existing nullable-property warnings.
+- A fresh temporary SQLite database was created through the initial migration.
+- Live API create, retrieve, update, list, and delete passed using fictional data.
+- Created records survived an API restart; deleted records remained absent after another restart.
+- Repeated startup with an existing migrated database succeeded.
+
 ## Known limitations
 
-- **Temporary storage:** the EF Core InMemory provider does not provide durable storage or production relational-database behavior.
+- **Local storage:** SQLite uses a local file. Database backups and production migration/deployment procedures are not implemented.
 - **Validation and errors:** field validation, missing-record handling, and consistent API error responses need improvement. Some failures are logged only to the browser console.
 - **Access control:** authentication and authorization are not implemented. Use fictional data in local development.
 - **Testing:** meaningful API and frontend behavior tests remain to be added.
@@ -161,6 +178,6 @@ Validation performed for this update:
 1. Run the browser tests and verify the complete create/edit/delete workflow in the UI.
 2. Add field validation and consistent error messages.
 3. Test service HTTP requests, API responses, and form behavior.
-4. Add persistent storage and document database setup.
+4. Add automated database integration tests.
 5. Add GitHub Actions checks for builds and tests.
 6. Add screenshots captured from the running application using fictional data.
