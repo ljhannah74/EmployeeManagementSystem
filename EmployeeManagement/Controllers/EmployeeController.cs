@@ -1,7 +1,6 @@
 using EmployeeManagement.Models;
 using EmployeeManagement.Repositories;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 namespace EmployeeManagement.Controllers
 {
@@ -42,6 +41,8 @@ namespace EmployeeManagement.Controllers
         [HttpDelete("{id}")]
         public async Task<ActionResult> DeleteEmployeeById(int id)
         {
+            if (await _employeeRepository.GetByIdAsync(id) == null)
+                return NotFound();
             await _employeeRepository.DeleteEmployeeAsync(id);
             return NoContent();
         }
@@ -54,7 +55,14 @@ namespace EmployeeManagement.Controllers
                 return BadRequest();
             }
 
-            await _employeeRepository.UpdateEmployeeAsync(employee);
+            var existing = await _employeeRepository.GetByIdAsync(id);
+            if (existing == null) return NotFound();
+            existing.FirstName = employee.FirstName;
+            existing.LastName = employee.LastName;
+            existing.Email = employee.Email;
+            existing.Phone = employee.Phone;
+            existing.Position = employee.Position;
+            await _employeeRepository.UpdateEmployeeAsync(existing);
             return CreatedAtAction(nameof(GetEmployeeById), new { id = employee.Id }, employee);
         }
     }

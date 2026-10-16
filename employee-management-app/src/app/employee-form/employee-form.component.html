@@ -1,35 +1,62 @@
-<h2>{{isEditing ? 'Edit' :'Create' }} Employee</h2>
-
-<div *ngIf="errorMessage != ''">
-    {{errorMessage}}
-</div>
-
-<form (ngSubmit)="onSubmit()">
-
-    <div>
-        <label>First Name:</label>
-        <input type="text" name="firstName" [(ngModel)]="employee.firstName" />
+<h2>{{ isEditing ? 'Edit' : 'Create' }} Employee</h2>
+<p *ngIf="isLoading" role="status">Loading employee…</p>
+<div *ngIf="errorMessage" class="alert alert-danger" role="alert">{{ errorMessage }}</div>
+<form #employeeForm="ngForm" (ngSubmit)="onSubmit(employeeForm)" novalidate>
+  <fieldset [disabled]="isSaving || isLoading || loadFailed">
+    <div class="mb-3">
+      <label for="firstName" class="form-label">First name *</label>
+      <input id="firstName" type="text" name="firstName" class="form-control"
+        [(ngModel)]="employee.firstName" #firstName="ngModel" required pattern=".*\S.*"
+        [attr.aria-invalid]="firstName.invalid && (firstName.touched || employeeForm.submitted)"
+        aria-describedby="firstName-error" />
+      <div id="firstName-error" class="text-danger"
+        *ngIf="firstName.invalid && (firstName.touched || employeeForm.submitted)">
+        First name is required.
+      </div>
     </div>
-
-    <div>
-        <label>Last Name:</label>
-        <input type="text" name="lastName" [(ngModel)]="employee.lastName" />
+    <div class="mb-3">
+      <label for="lastName" class="form-label">Last name *</label>
+      <input id="lastName" type="text" name="lastName" class="form-control"
+        [(ngModel)]="employee.lastName" #lastName="ngModel" required pattern=".*\S.*"
+        [attr.aria-invalid]="lastName.invalid && (lastName.touched || employeeForm.submitted)"
+        aria-describedby="lastName-error" />
+      <div id="lastName-error" class="text-danger"
+        *ngIf="lastName.invalid && (lastName.touched || employeeForm.submitted)">
+        Last name is required.
+      </div>
     </div>
-
-    <div>
-        <label>Phone:</label>
-        <input type="phone" name="phone" [(ngModel)]="employee.phone" />
+    <div class="mb-3">
+      <label for="email" class="form-label">Email *</label>
+      <input id="email" type="email" name="email" class="form-control"
+        [(ngModel)]="employee.email" #email="ngModel" required email
+        [attr.aria-invalid]="email.invalid && (email.touched || employeeForm.submitted)"
+        aria-describedby="email-error" />
+      <div id="email-error" class="text-danger"
+        *ngIf="email.invalid && (email.touched || employeeForm.submitted)">
+        Enter a valid email address.
+      </div>
     </div>
-
-    <div>
-        <label>Email:</label>
-        <input type="email" name="email" [(ngModel)]="employee.email" />
+    <div class="mb-3">
+      <label for="phone" class="form-label">Phone (optional)</label>
+      <input id="phone" type="tel" name="phone" class="form-control"
+        [(ngModel)]="employee.phone" #phone="ngModel"
+        [attr.aria-invalid]="phone.invalid && (phone.touched || employeeForm.submitted)"
+        aria-describedby="phone-error" />
+      <span id="phone-error"></span>
     </div>
-
-    <div>
-        <label>Position:</label>
-        <input type="text" name="position" [(ngModel)]="employee.position" />
+    <div class="mb-3">
+      <label for="position" class="form-label">Position *</label>
+      <input id="position" type="text" name="position" class="form-control"
+        [(ngModel)]="employee.position" #position="ngModel" required pattern=".*\S.*"
+        [attr.aria-invalid]="position.invalid && (position.touched || employeeForm.submitted)"
+        aria-describedby="position-error" />
+      <div id="position-error" class="text-danger"
+        *ngIf="position.invalid && (position.touched || employeeForm.submitted)">
+        Position is required.
+      </div>
     </div>
-
-    <button type="submit">{{isEditing ? 'Edit' : 'Create'}}</button>
+    <button class="btn btn-primary" type="submit" [disabled]="isSaving || isLoading || loadFailed">
+      {{ isSaving ? 'Saving…' : (isEditing ? 'Save changes' : 'Create employee') }}
+    </button>
+  </fieldset>
 </form>

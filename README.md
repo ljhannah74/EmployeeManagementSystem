@@ -11,7 +11,8 @@ A full-stack employee directory built with Angular and ASP.NET Core. The project
 - Delete an employee from the directory.
 - Exchange JSON between Angular HttpClient and the ASP.NET Core API.
 - Explore the API with Swagger UI in the Development environment.
-- Display create/update request errors in the form.
+- Validate required employee fields and email format in both the form and API.
+- Show field-level messages, preserve input on save failure, and prevent duplicate saves.
 
 Employee records contain an ID, first name, last name, email, phone, and position.
 
@@ -148,7 +149,7 @@ npm run build
 npm test -- --watch=false --browsers=ChromeHeadless
 ```
 
-The frontend includes five form regression tests for create/edit initialization, resetting the form on route changes, and selecting the correct submit operation. Other tests are still initial scaffolds, and there is no separate backend test project.
+The frontend includes 12 form regression tests covering create/edit initialization, route reset, submit selection, invalid input, duplicate saves, retries, server validation messages, load failures, and template behavior. Other tests are still initial scaffolds, and there is no separate backend test project.
 
 Validation from the earlier form update (frontend unchanged by the SQLite change):
 
@@ -169,15 +170,34 @@ SQLite validation:
 ## Known limitations
 
 - **Local storage:** SQLite uses a local file. Database backups and production migration/deployment procedures are not implemented.
-- **Validation and errors:** field validation, missing-record handling, and consistent API error responses need improvement. Some failures are logged only to the browser console.
+- **Errors:** the employee form handles load/save failures, and the API returns validation errors and missing-record responses. Directory-level error handling and concurrent-delete race handling remain to be improved.
 - **Access control:** authentication and authorization are not implemented. Use fictional data in local development.
 - **Testing:** meaningful API and frontend behavior tests remain to be added.
 
 ## Next improvements
 
 1. Run the browser tests and verify the complete create/edit/delete workflow in the UI.
-2. Add field validation and consistent error messages.
+2. Improve directory-level error messages and concurrent-update handling.
 3. Test service HTTP requests, API responses, and form behavior.
 4. Add automated database integration tests.
 5. Add GitHub Actions checks for builds and tests.
 6. Add screenshots captured from the running application using fictional data.
+
+
+### Validation and error handling update
+
+First name, last name, email, and position are required; phone is optional.
+Whitespace-only required values and malformed email addresses are rejected.
+The API uses ASP.NET Core validation responses (HTTP 400), including when callers bypass the UI.
+Saving disables the form until the request completes. Failures keep entered values and display a retry message.
+Failed edit loads prevent saving an unloaded record. Updating or deleting a missing record returns HTTP 404.
+
+Validation: backend Release build passed with no warnings; frontend production build and test TypeScript compilation passed.
+Live SQLite API checks passed for empty, whitespace-only, and null required fields, malformed email, invalid updates preserving data, valid CRUD, and missing update/delete records.
+The focused Karma run was attempted, but Chrome launch was blocked by this execution environment's socket restriction; browser test execution remains unverified.
+
+To run only the employee-form tests locally:
+
+```bash
+npm test -- --watch=false --browsers=ChromeHeadless --include=src/app/employee-form/employee-form.component.spec.ts
+```
