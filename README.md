@@ -180,7 +180,7 @@ SQLite validation:
 2. Improve directory-level error messages and concurrent-update handling.
 3. Test service HTTP requests, API responses, and form behavior.
 4. Add automated database integration tests.
-5. Add GitHub Actions checks for builds and tests.
+5. Expand CI coverage as service and directory tests are implemented.
 6. Add screenshots captured from the running application using fictional data.
 
 
@@ -201,3 +201,17 @@ To run only the employee-form tests locally:
 ```bash
 npm test -- --watch=false --browsers=ChromeHeadless --include=src/app/employee-form/employee-form.component.spec.ts
 ```
+
+## Continuous integration
+
+[![CI](https://github.com/ljhannah74/EmployeeManagementSystem/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/ljhannah74/EmployeeManagementSystem/actions/workflows/ci.yml)
+
+GitHub Actions runs on pull requests targeting `master`, pushes to `master`, and manual runs from the Actions tab.
+
+- **Backend build:** installs .NET 9, restores dependencies, and builds the solution in Release mode. There is no backend test project yet.
+- **Frontend build and form tests:** uses Node.js 22, installs dependencies from the lockfile with `npm ci`, builds Angular for production, and runs the 12 employee-form tests in headless Chrome on the Ubuntu runner.
+- **Test scope:** service, directory, and app scaffold specs are not yet included in CI. A green result covers the two builds and the employee-form tests, rather than the entire test suite.
+- Jobs have time limits, read-only repository permissions, and cancellation of superseded runs. No secrets, database server, or deployment configuration are required.
+
+Open **Actions → CI** or a pull request's **Checks** tab to see results and expand a failed step for its log.
+These checks report failures but do not enforce merge blocking until a repository ruleset requires them.

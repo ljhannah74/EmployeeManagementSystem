@@ -1,0 +1,64 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    name: Backend build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    env:
+      DOTNET_NOLOGO: true
+      DOTNET_CLI_TELEMETRY_OPTOUT: true
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: '9.0.x'
+      - name: Restore dependencies
+        run: dotnet restore EmployeeManagementSystem.sln
+      - name: Build API
+        run: dotnet build EmployeeManagementSystem.sln --configuration Release --no-restore
+
+  frontend:
+    name: Frontend build and form tests
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: employee-management-app
+    env:
+      CI: true
+      CHROME_BIN: /usr/bin/google-chrome
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: employee-management-app/package-lock.json
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Build production frontend
+        run: npm run build -- --configuration production
+      - name: Verify Chrome
+        run: '"$CHROME_BIN" --version'
+      # The other spec files are still scaffolds; expand coverage as they are repaired.
+      - name: Run employee form regression tests
+        run: npm test -- --watch=false --browsers=ChromeHeadless --include=src/app/employee-form/employee-form.component.spec.ts
