@@ -4,6 +4,16 @@ A full-stack employee directory built with Angular and ASP.NET Core. The project
 
 **Status:** Learning and portfolio project in development. CRUD endpoints and screens are implemented; this is not a production-ready HR system. See [known limitations](#known-limitations) before running it.
 
+## Live Demo
+
+[Try EmployeeManagement on Azure](https://employees-ljhannah-fcc4aqd8ajazfsab.westus3-01.azurewebsites.net/)
+
+Explore fictional employee data in a read-only demo. Sorting, filtering, and navigation are available; adding, editing, and deleting are disabled.
+
+Hosted on Azure App Service with Azure SQL and managed identity authentication. GitHub Actions tests, builds, and deploys the Angular interface and ASP.NET Core API after changes merge into main.
+
+The free hosting services may take time to wake after inactivity.
+
 ## Features
 
 - List employees and their contact and position details.
