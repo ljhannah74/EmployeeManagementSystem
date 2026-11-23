@@ -3,6 +3,7 @@ import { Employee } from '../../models/employee';// Adjust the path as needed
 import { EmployeeService } from '../employee.service'; // Adjust the path as needed
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { environment } from '../../environments/environment';
 
 @Component({
   selector: 'employee-table',
@@ -12,6 +13,8 @@ import { Router } from '@angular/router';
 })
 export class EmployeeTableComponent {
 
+  readonly readOnlyDemo = environment.readOnlyDemo;
+  
   employees: Employee[] = [];
 
   constructor(private employeeService: EmployeeService,

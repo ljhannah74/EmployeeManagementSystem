@@ -1,0 +1,86 @@
+name: Deploy Employee Management to Azure
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: employees-azure-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: github.ref == 'refs/heads/master'
+    runs-on: windows-latest
+    timeout-minutes: 20
+
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: employee-management-app/package-lock.json
+
+      - name: Install frontend dependencies
+        working-directory: employee-management-app
+        run: npm ci --no-audit --no-fund
+
+      - name: Build Angular
+        working-directory: employee-management-app
+        run: npm run build -- --configuration production
+
+      - name: Build API
+        run: >
+          dotnet build EmployeeManagementSystem.sln
+          --configuration Release
+
+      - name: Publish API
+        run: >
+          dotnet publish EmployeeManagement/EmployeeManagement.csproj
+          --configuration Release
+          --no-build
+          --output ./publish
+
+      - name: Include Angular application
+        shell: pwsh
+        run: |
+          $angularOutput = "./employee-management-app/dist/employee-management-app/browser"
+
+          if (!(Test-Path "$angularOutput/index.html")) {
+            throw "Angular index.html was not found at $angularOutput"
+          }
+
+          New-Item -ItemType Directory -Force -Path ./publish/wwwroot | Out-Null
+          Copy-Item -Path "$angularOutput/*" -Destination ./publish/wwwroot -Recurse -Force
+
+      - name: Log in to Azure
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_A2A854498E5042FC88B2051BF6C1866B }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_8FFA0F5A6615433F8607970FBEC3272A }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_C8B3FB7F088E4BE8A4BD5112E2F5E654 }}
+
+      - name: Deploy to Azure App Service
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: employees-ljhannah
+          package: ./publish

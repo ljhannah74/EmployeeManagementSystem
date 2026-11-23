@@ -3,13 +3,13 @@
     <table class="table table-hover">
         <thead>
             <tr>
-            <th>Employee ID</th>
-            <th>First Name</th>
-            <th>Last Name</th>
-            <th>Phone</th>
-            <th>Email</th>
-            <th>Position</th>
-            <th>Actions</th>
+                <th>Employee ID</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Phone</th>
+                <th>Email</th>
+                <th>Position</th>
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -21,10 +21,17 @@
                 <td>{{ employee.email }}</td>
                 <td>{{ employee.position }}</td>
                 <td>
-                    <button class="btn btn-primary m-2 " (click)="editEmployee(employee.id)">Edit</button>
-                    <button class="btn btn-danger" (click)="deleteEmployee(employee.id)">Delete</button>
+                    <button type="button" class="btn btn-primary m-2" [disabled]="readOnlyDemo"
+                        (click)="editEmployee(employee.id)">
+                        Edit
+                    </button>
+
+                    <button type="button" class="btn btn-danger" [disabled]="readOnlyDemo"
+                        (click)="deleteEmployee(employee.id)">
+                        Delete
+                    </button>
                 </td>
             </tr>
         </tbody>
-    </table>    
+    </table>
 </div>
