@@ -6,6 +6,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { finalize } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 @Component({
   selector: 'app-employee-form',
@@ -14,7 +15,8 @@ import { finalize } from 'rxjs';
   styleUrl: './employee-form.component.css'
 })
 export class EmployeeFormComponent implements OnInit {
-
+  readonly readOnlyDemo = environment.readOnlyDemo;
+  
   employee: Employee = {
     id: 0,
     firstName: '',
@@ -69,6 +71,7 @@ export class EmployeeFormComponent implements OnInit {
   }
 
   onSubmit(form?: NgForm): void {
+    if (this.readOnlyDemo) return;
     if (this.isSaving || this.isLoading || this.loadFailed) return;
     const required = [this.employee.firstName, this.employee.lastName,
       this.employee.email, this.employee.position];

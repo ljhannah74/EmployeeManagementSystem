@@ -2,7 +2,7 @@
 <p *ngIf="isLoading" role="status">Loading employee…</p>
 <div *ngIf="errorMessage" class="alert alert-danger" role="alert">{{ errorMessage }}</div>
 <form #employeeForm="ngForm" (ngSubmit)="onSubmit(employeeForm)" novalidate>
-  <fieldset [disabled]="isSaving || isLoading || loadFailed">
+  <fieldset [disabled]="readOnlyDemo || isSaving || isLoading || loadFailed">
     <div class="mb-3">
       <label for="firstName" class="form-label">First name *</label>
       <input id="firstName" type="text" name="firstName" class="form-control"
@@ -55,7 +55,7 @@
         Position is required.
       </div>
     </div>
-    <button class="btn btn-primary" type="submit" [disabled]="isSaving || isLoading || loadFailed">
+    <button class="btn btn-primary" type="submit" [disabled]="readOnlyDemo || isSaving || isLoading || loadFailed">
       {{ isSaving ? 'Saving…' : (isEditing ? 'Save changes' : 'Create employee') }}
     </button>
   </fieldset>
